@@ -7,6 +7,8 @@ from scipy.spatial import distance
 cap = cv2.VideoCapture(0)
 face_cascade = cv2.CascadeClassifier('../haarcascade_frontalface_alt2.xml')
 face_parts_detector = dlib.shape_predictor('../shape_predictor_68_face_landmarks.dat')
+blind_count = 0
+prev_blink = False
 
 # 目のアスペクト比を求める
 def calc_ear(eye):
@@ -45,9 +47,18 @@ while True:
         left_eye = face_parts[36:42]
         left_eye_ear = calc_ear(left_eye)
 
-        if (right_eye_ear + left_eye_ear) < 0.40:
-            cv2.putText(img, "eye close", (10, 50), cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255), 2, cv2.LINE_AA)
-
+        if (right_eye_ear + left_eye_ear) < 0.4:
+            curEyeOpen = 0
+        else:
+            curEyeOpen = 1
+        
+        if curEyeOpen == 0 and lastEyeOpen == 1:
+            blind_count += 1
+        
+        lastEyeOpen = curEyeOpen
+            
+            
+    cv2.putText(img, str(blind_count), (10, 100), cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255), 2, cv2.LINE_AA)         
     cv2.imshow('frame', img)
 
     if cv2.waitKey(1) == 27:
