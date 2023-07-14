@@ -3,6 +3,8 @@ import cv2
 import dlib
 from imutils import face_utils
 from scipy.spatial import distance
+import datetime
+import csv
 
 cap = cv2.VideoCapture(0)
 face_cascade = cv2.CascadeClassifier('../haarcascade_frontalface_alt2.xml')
@@ -54,6 +56,16 @@ while True:
         
         if curEyeOpen == 0 and lastEyeOpen == 1:
             blind_count += 1
+
+            with open('data.csv', 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+
+                # csvファイルが空である場合はヘッダー行を書き込む
+                if csvfile.tell() == 0:
+                    writer.writerow([ 'Timestamp', 'Blink' ,'Blink_Count'])
+
+                writer.writerow([str(datetime.datetime.now()), 'blink!!', blind_count])
+
         
         lastEyeOpen = curEyeOpen
             
